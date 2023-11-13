@@ -1,0 +1,41 @@
+# Use a imagem oficial do Node.js como base
+FROM ubuntu:latest
+
+# Crie um diretório de trabalho para o aplicativo
+WORKDIR /app
+
+# Copie o arquivo package.json e package-lock.json para o diretório de trabalho
+COPY package*.json ./
+
+RUN apt update
+
+# Instale as dependências do aplicativo
+RUN npm install
+
+RUN npm install -g @nestjs/cli
+
+RUN npm install -g node-gyp
+
+RUN npm install -g bcrypt
+
+RUN npm install bcryptjs
+
+RUN npm install --save-dev @types/bcryptjs
+
+RUN npm link bcrypt
+
+# Instale o PM2 globalmente
+RUN npm install -g pm2
+
+# Copie o restante dos arquivos do aplicativo
+
+COPY . .
+
+COPY wait-for-it.sh /wait-for-it.sh
+
+RUN chmod +x /wait-for-it.sh
+
+EXPOSE 3000
+
+# Defina o comando de inicialização do serviço Prisma usando wait-for-it.sh
+CMD ["./wait-for-it.sh", "commercedb:55436", "--", "pm2-runtime", "start", "ecosystem.config.js"]

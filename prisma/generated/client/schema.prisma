@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model fruitClass {
+  id               String             @id @default(uuid())
+  createAt         DateTime           @default(now()) @map("create_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  name             String             @unique @db.VarChar(100)
+  description      String
+  fatherId         String?            @map("father_id")
+  father           fruitClass?        @relation("FruitRelations", fields: [fatherId], references: [id])
+  child            fruitClass[]        @relation("FruitRelations")
+  fruitName        fruitName[]
+  fruitTraining    fruitTraining[]
+
+  @@map("fruit_class")
+}
+
+model fruitTraining {
+  id               String             @id @default(uuid())
+  createAt         DateTime           @default(now()) @map("create_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  img              String
+  date             DateTime
+  fruitClass       fruitClass?  @relation(fields: [fruitClassId], references: [id])
+  fruitClassId     String       @map("fruit_class_id")
+
+  @@map("fruit_training")
+}
+
+model fruitName {
+  id           String       @id @default(uuid())
+  createAt     DateTime     @default(now()) @map("create_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  name         String
+  fruitClass   fruitClass?  @relation(fields: [fruitClassId], references: [id])
+  fruitClassId String       @map("fruit_class_id")
+  fruitValue   fruitValue[]
+
+  @@map("fruit_name")
+}
+
+model fruitValue {
+  id                 String            @id @default(uuid())
+  createAt           DateTime          @default(now()) @map("create_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+  description        String
+  valueUnid          Decimal           @map("value_unid") @db.Decimal(10, 4)
+  date               DateTime
+  fruitName          fruitName?        @relation(fields: [fruitNameId], references: [id])
+  fruitNameId        String            @map("fruit_name_id")
+  fruitHistory       fruitHistory[]
+
+  @@map("fruit_value")
+}
+
+model fruitHistory {
+  id           String      @id @default(uuid())
+  createAt     DateTime    @default(now()) @map("create_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  dateCapture  DateTime    @map("date_capture")
+  valuWeight   Decimal     @map("value_weight") @db.Decimal(10, 4)
+  valueTotal   Decimal     @map("value_total") @db.Decimal(20, 4)
+  fruitValue   fruitValue? @relation(fields: [fruitValueId], references: [id])
+  fruitValueId String      @map("fruit_value_id")
+
+  @@map("fruit_history")
+}
+
+model user {
+  id          String   @id @default(uuid())
+  createAt    DateTime @default(now()) @map("create_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  name        String   @db.VarChar(100)
+  description String?
+  login       String   @unique @db.VarChar(50)
+  password    String   @db.VarChar(100)
+  profile     profile? @relation(fields: [profileId], references: [id])
+  profileId   String?  @map("profile_id")
+
+  @@map("user")
+}
+
+model profile {
+  id        String   @id @default(uuid())
+  createAt  DateTime @default(now()) @map("create_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  name      String
+  key       String   @unique @db.VarChar(50)
+  user      user[]
+
+  @@map("profile")
+}
+
+model balance {
+  id        String   @id @default(uuid())
+  createAt  DateTime @default(now()) @map("create_at")
+  updatedAt DateTime @updatedAt @map("update_at")
+  nome      String
+  ip        String
+  local     String
+
+  @@map("balance")
+}

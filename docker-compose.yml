@@ -1,0 +1,54 @@
+version: '3'
+services:
+
+#  commerce-prisma:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.prisma
+#    container_name: commerce-prisma
+#    volumes:
+#      - ./:/app # Substitua './myapp' pelo diretório do seu aplicativo Node.js
+#    depends_on:
+#      - commerce-db
+
+  commerce-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.pm2
+    container_name: commerce-serve
+    restart: always
+    volumes:
+      - ./:/app # Substitua './myapp' pelo diretório do seu aplicativo Node.js
+    depends_on:
+      - commerce-db
+    ports:
+      - "53000:3000" 
+#    environment:
+#      NODE_ENV: production
+#    command: [ "npm", "run", "start:dev" ] # Substitua pelo nome do seu arquivo de configuração PM2, se necessário
+
+  commerce-db:
+    image: postgres:14-bullseye
+    container_name: commerce-db
+    restart: always
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: commercedb
+    ports:
+      - "55436:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
+      
+    
+
+## networks vai mudar quando mudar para o servidor
+
+# networks:
+#   default:
+#     external:
+#       name: servers
+

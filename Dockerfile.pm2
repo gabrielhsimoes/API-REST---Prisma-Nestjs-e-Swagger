@@ -1,0 +1,31 @@
+# Use a imagem base do Ubuntu 20.04 LTS
+FROM ubuntu:20.04
+
+# Atualize os pacotes e instale as dependências necessárias
+RUN apt-get update && \
+    apt-get install -y curl && \
+     apt-get install -y build-essential && \
+    curl -fsSL https://deb.nodesource.com/setup_19.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g pm2 && \
+    apt-get clean
+
+
+# Crie um diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+# Copie os arquivos de sua aplicação para o diretório de trabalho
+COPY . .
+
+RUN rm -rf node_modules
+
+# Instale as dependências da aplicação (se houver um arquivo package.json)
+RUN npm install
+
+RUN npm rebuild bcrypt --build-from-source
+
+# Exponha a porta que sua aplicação Node.js irá ouvir
+EXPOSE 3000
+
+# Inicie sua aplicação com PM2
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]

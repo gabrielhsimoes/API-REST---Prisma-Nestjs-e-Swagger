@@ -1,0 +1,24 @@
+# Use a imagem oficial do Node.js como base
+FROM node:19.8.1
+
+# Crie um diretório de trabalho para o aplicativo
+WORKDIR /app
+
+# Copie o arquivo package.json e package-lock.json para o diretório de trabalho
+COPY package*.json ../
+
+# Instale as dependências do aplicativo
+RUN npm install
+
+# Copie o restante dos arquivos do aplicativo
+COPY . .
+
+RUN npm install -g prisma
+# Crie o banco de dados (substitua com seu comando Prisma)
+
+# Crie o banco de dados (substitua com seu comando Prisma)
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
+# Defina o comando de inicialização do serviço Prisma usando wait-for-it.sh
+CMD ["./wait-for-it.sh", "commercedb:55436", "--", "./run-prisma.sh"]
